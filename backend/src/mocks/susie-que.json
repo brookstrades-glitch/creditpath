@@ -1,0 +1,113 @@
+{
+  "_mock": true,
+  "_applicant": "Susie Que",
+  "_scenario": "~500 score — charge-offs, public record, high utilization",
+  "reports": {
+    "equifax":   { "status": "success", "full_feed_link": null },
+    "experian":  { "status": "success", "full_feed_link": null },
+    "transunion": { "status": "success", "full_feed_link": null }
+  },
+  "full_feed": {
+    "credit_score": {
+      "equifax_fico4": 498,
+      "equifax_vantage4": 503,
+      "transunion_fico4": 502,
+      "transunion_vantage4": 497,
+      "experian_fico8": 491,
+      "experian_vantage4": 505,
+      "reason_codes": ["Charge-off", "Public record", "High utilization", "Collections", "Late payments"]
+    },
+    "trade_accounts": [
+      {
+        "creditor": "SYNCHRONY BANK",
+        "account_number": "****4455",
+        "account_type": "Revolving",
+        "balance": 1100,
+        "credit_limit": 1200,
+        "payment_history": "91111111122222",
+        "status": "Open",
+        "opened_date": "2020-02-01",
+        "delinquency_date": "2022-01-01",
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "negative_accounts": [
+      {
+        "creditor": "CITIBANK",
+        "account_number": "****6677",
+        "account_type": "Revolving",
+        "balance": 2100,
+        "payment_code": "9",
+        "payment_code_description": "Charge-off / Charged off to bad debt",
+        "status": "Charge-off",
+        "delinquency_date": "2020-08-01",
+        "opened_date": "2015-04-01",
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "collections": [
+      {
+        "original_creditor": "T-MOBILE",
+        "collection_agency": "PORTFOLIO RECOVERY",
+        "account_number": "****8899",
+        "balance": 520,
+        "original_balance": 520,
+        "opened_date": "2021-03-01",
+        "delinquency_date": "2020-09-01",
+        "status": "Open",
+        "payment_code": "6",
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "public_records": [
+      {
+        "type": "Civil Judgment",
+        "plaintiff": "LVNV FUNDING LLC",
+        "amount": 1800,
+        "filed_date": "2021-05-15",
+        "status": "Satisfied",
+        "bureaus": ["equifax"]
+      }
+    ],
+    "inquiries": [
+      {
+        "creditor": "CARVANA",
+        "inquiry_date": "2024-10-01",
+        "purpose": "Auto",
+        "bureaus": ["equifax"]
+      },
+      {
+        "creditor": "CARVANA",
+        "inquiry_date": "2024-10-01",
+        "purpose": "Auto",
+        "bureaus": ["transunion"]
+      },
+      {
+        "creditor": "CARVANA",
+        "inquiry_date": "2024-09-28",
+        "purpose": "Auto",
+        "bureaus": ["experian"]
+      },
+      {
+        "creditor": "SNAP FINANCE",
+        "inquiry_date": "2024-08-15",
+        "purpose": "Consumer Finance",
+        "bureaus": ["equifax", "transunion"]
+      },
+      {
+        "creditor": "ACE CASH EXPRESS",
+        "inquiry_date": "2024-06-10",
+        "purpose": "Consumer Finance",
+        "bureaus": ["experian"]
+      }
+    ],
+    "consumer_info": {
+      "first_name": "Susie",
+      "last_name": "Que",
+      "address": "2270 Camino Vida Roble",
+      "city": "Carlsbad",
+      "state": "California",
+      "zip": "92011"
+    }
+  }
+}

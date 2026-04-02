@@ -1,0 +1,11 @@
+{
+  "_mock": true,
+  "_applicant": "Chris Iceman",
+  "_scenario": "Frozen report — all bureaus",
+  "reports": {
+    "equifax":   { "status": "freeze", "full_feed_link": null },
+    "experian":  { "status": "freeze", "full_feed_link": null },
+    "transunion": { "status": "freeze", "full_feed_link": null }
+  },
+  "full_feed": {}
+}

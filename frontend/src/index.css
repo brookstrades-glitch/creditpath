@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+  }
+
+  /* Focus rings — accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-600;
+  }
+}
+
+@layer components {
+  /* Card — base unit of the UI */
+  .card {
+    @apply bg-white rounded-xl shadow-card border border-gray-100 p-6;
+  }
+
+  /* Score badge */
+  .score-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  /* Bureau chip */
+  .bureau-chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  /* Dispute urgency bar */
+  .urgency-bar {
+    @apply h-2 rounded-full transition-colors duration-300;
+  }
+
+  /* CRO disclaimer — required on dispute + negotiation screens */
+  .cro-disclaimer {
+    @apply text-xs text-gray-500 bg-gray-50 border border-gray-200 rounded-lg p-3 leading-relaxed;
+  }
+
+  /* FCRA notice */
+  .fcra-notice {
+    @apply text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 leading-relaxed;
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "_mock": true,
+  "_applicant": "John Dough",
+  "_scenario": "~600 score — collections and late payments",
+  "reports": {
+    "equifax":   { "status": "success", "full_feed_link": null },
+    "experian":  { "status": "success", "full_feed_link": null },
+    "transunion": { "status": "success", "full_feed_link": null }
+  },
+  "full_feed": {
+    "credit_score": {
+      "equifax_fico4": 598,
+      "equifax_vantage4": 604,
+      "transunion_fico4": 602,
+      "transunion_vantage4": 609,
+      "experian_fico8": 595,
+      "experian_vantage4": 601,
+      "reason_codes": ["Collection account", "High utilization", "Late payments", "Short credit history"]
+    },
+    "trade_accounts": [
+      {
+        "creditor": "DISCOVER",
+        "account_number": "****3344",
+        "account_type": "Revolving",
+        "balance": 4200,
+        "credit_limit": 4500,
+        "payment_history": "112345111111111",
+        "status": "Open",
+        "opened_date": "2019-07-01",
+        "delinquency_date": "2022-03-01",
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "negative_accounts": [
+      {
+        "creditor": "FIRST PREMIER BANK",
+        "account_number": "****7788",
+        "account_type": "Revolving",
+        "balance": 890,
+        "payment_code": "5",
+        "payment_code_description": "120 or more days past due",
+        "status": "Derogatory",
+        "delinquency_date": "2021-11-01",
+        "opened_date": "2017-05-01",
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "collections": [
+      {
+        "original_creditor": "SPRINT",
+        "collection_agency": "MIDLAND CREDIT MGMT",
+        "account_number": "****2211",
+        "balance": 340,
+        "original_balance": 340,
+        "opened_date": "2022-06-01",
+        "delinquency_date": "2021-09-01",
+        "status": "Open",
+        "payment_code": "6",
+        "bureaus": ["equifax", "transunion"]
+      }
+    ],
+    "public_records": [],
+    "inquiries": [
+      {
+        "creditor": "CREDIT ACCEPTANCE",
+        "inquiry_date": "2024-09-01",
+        "purpose": "Auto",
+        "bureaus": ["equifax"]
+      },
+      {
+        "creditor": "CREDIT ACCEPTANCE",
+        "inquiry_date": "2024-08-20",
+        "purpose": "Auto",
+        "bureaus": ["transunion"]
+      },
+      {
+        "creditor": "CREDIT ACCEPTANCE",
+        "inquiry_date": "2024-08-18",
+        "purpose": "Auto",
+        "bureaus": ["experian"]
+      },
+      {
+        "creditor": "AMERICAN FIRST FINANCE",
+        "inquiry_date": "2024-07-10",
+        "purpose": "Personal Loan",
+        "bureaus": ["equifax", "transunion"]
+      }
+    ],
+    "consumer_info": {
+      "first_name": "John",
+      "last_name": "Dough",
+      "address": "310 Tamarack Ave",
+      "city": "Carlsbad",
+      "state": "California",
+      "zip": "92010"
+    }
+  }
+}

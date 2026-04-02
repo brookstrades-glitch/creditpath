@@ -1,0 +1,126 @@
+// CreditPath Prisma Schema
+// Exact schema from PRD §7.4
+// Raw credit report data (full_feed) is NEVER stored here — stateless design per §1.3
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  // clerkId links to Clerk — this is the source of truth for auth
+  clerkId      String   @unique
+  email        String   @unique
+  // State collected at registration for state law compliance (CA, CO, MA, VT)
+  state        String?
+  // FCRA §604(a)(2) consent — full text + timestamp — legally required
+  fcraConsentAt  DateTime?
+  consentText    String?
+  createdAt    DateTime @default(now())
+
+  disputes     Dispute[]
+  letters      Letter[]
+  negotiations Negotiation[]
+  pullSnapshots PullSnapshot[]
+}
+
+// Lightweight aggregate metadata per pull — enables delta view without storing PII
+model PullSnapshot {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  pulledAt          DateTime @default(now())
+
+  // Scores — null if bureau failed or did not return a score
+  equifaxFico4      Int?
+  equifaxVantage4   Int?
+  transunionFico4   Int?
+  transunionVantage4 Int?
+  experianFico8     Int?
+  experianVantage4  Int?
+
+  // Aggregate counts — no PII
+  negativeMarkCount  Int
+  inquiryCount       Int
+  collectionCount    Int
+  publicRecordCount  Int
+
+  // Bureau statuses: { equifax: 'success'|'error'|'no-hit'|'freeze', ... }
+  bureauStatuses Json
+
+  @@index([userId, pulledAt])
+}
+
+model Dispute {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bureau       String  // 'equifax'|'experian'|'transunion'|'furnisher'
+  disputePath  String  // 'bureau'|'furnisher'
+  itemDescription String
+
+  // submittedAt: date bureau/furnisher RECEIVED the notice — this starts the 30-day FCRA clock
+  // NOT the date the letter was generated or mailed — per FCRA §611(a)(1)(A)
+  submittedAt  DateTime?
+
+  status       String  // 'pending'|'submitted'|'in_reinvestigation'|'resolved_favorable'|'resolved_unfavorable'|'escalated'|'statement_added'
+
+  escalatedAt  DateTime?
+  resolvedAt   DateTime?
+  notes        String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+model Letter {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  letterType   String
+  letterNumber Int     // 1-14
+  path         String  // 'bureau'|'furnisher'|'creditor'|'collector'
+  bureau       String?
+  creditor     String?
+
+  createdAt    DateTime @default(now())
+
+  // IMPORTANT: No pdfPath — PDFs are generated on demand at download time only.
+  // Railway filesystem resets on every deploy; PDFs written to disk would be lost.
+}
+
+model Negotiation {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  creditorName       String
+  accountDescription String
+
+  phase          String  // 'validation'|'negotiation'|'verification'
+  strategy       String  // 'pay_for_delete'|'goodwill'|'settlement'
+
+  // Array of { letterType, sentAt, respondedAt }
+  lettersSent    Json    @default("[]")
+
+  agreedTerms    String?
+  paymentStatus  String?
+  deletionVerified Boolean @default(false)
+
+  notes          String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId, phase])
+}

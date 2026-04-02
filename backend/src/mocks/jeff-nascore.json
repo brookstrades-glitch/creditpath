@@ -1,0 +1,26 @@
+{
+  "_mock": true,
+  "_applicant": "Jeff Nascore",
+  "_scenario": "No score — thin file",
+  "reports": {
+    "equifax":   { "status": "no-hit", "full_feed_link": null },
+    "experian":  { "status": "no-hit", "full_feed_link": null },
+    "transunion": { "status": "no-hit", "full_feed_link": null }
+  },
+  "full_feed": {
+    "credit_score": null,
+    "trade_accounts": [],
+    "negative_accounts": [],
+    "collections": [],
+    "public_records": [],
+    "inquiries": [],
+    "consumer_info": {
+      "first_name": "Jeff",
+      "last_name": "Nascore",
+      "address": "1999 California St",
+      "city": "Oceanside",
+      "state": "California",
+      "zip": "92054"
+    }
+  }
+}

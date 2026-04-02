@@ -1,0 +1,85 @@
+{
+  "_mock": true,
+  "_applicant": "Steve Johnson",
+  "_scenario": "~700 score — good standing",
+  "reports": {
+    "equifax": { "status": "success", "full_feed_link": null },
+    "experian": { "status": "success", "full_feed_link": null },
+    "transunion": { "status": "success", "full_feed_link": null }
+  },
+  "full_feed": {
+    "credit_score": {
+      "equifax_fico4": 712,
+      "equifax_vantage4": 708,
+      "transunion_fico4": 718,
+      "transunion_vantage4": 715,
+      "experian_fico8": 705,
+      "experian_vantage4": 701,
+      "reason_codes": ["Late payments on file", "High revolving utilization"]
+    },
+    "trade_accounts": [
+      {
+        "creditor": "CAPITAL ONE",
+        "account_number": "****1234",
+        "account_type": "Revolving",
+        "balance": 2800,
+        "credit_limit": 5000,
+        "payment_history": "1111111111121111111112",
+        "status": "Open",
+        "opened_date": "2018-03-01",
+        "delinquency_date": null,
+        "bureaus": ["equifax", "experian", "transunion"]
+      },
+      {
+        "creditor": "CHASE AUTO",
+        "account_number": "****5678",
+        "account_type": "Installment",
+        "balance": 12400,
+        "credit_limit": null,
+        "payment_history": "111111111111111111111",
+        "status": "Open",
+        "opened_date": "2020-06-15",
+        "delinquency_date": null,
+        "bureaus": ["equifax", "experian", "transunion"]
+      }
+    ],
+    "negative_accounts": [
+      {
+        "creditor": "BANK OF AMERICA",
+        "account_number": "****9012",
+        "account_type": "Revolving",
+        "balance": 0,
+        "payment_code": "2",
+        "payment_code_description": "30-59 days past due",
+        "status": "Closed",
+        "delinquency_date": "2021-08-01",
+        "opened_date": "2016-01-01",
+        "bureaus": ["equifax", "transunion"]
+      }
+    ],
+    "collections": [],
+    "public_records": [],
+    "inquiries": [
+      {
+        "creditor": "CAPITAL ONE AUTO",
+        "inquiry_date": "2024-02-15",
+        "purpose": "Auto Loan",
+        "bureaus": ["equifax"]
+      },
+      {
+        "creditor": "DISCOVER BANK",
+        "inquiry_date": "2024-01-10",
+        "purpose": "Credit Card",
+        "bureaus": ["experian"]
+      }
+    ],
+    "consumer_info": {
+      "first_name": "Steve",
+      "last_name": "Johnson",
+      "address": "3557 Lancer Way",
+      "city": "Carlsbad",
+      "state": "California",
+      "zip": "92008"
+    }
+  }
+}
