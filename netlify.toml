@@ -4,7 +4,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "24"
+  NODE_VERSION = "22"
 
 # SPA redirect — all routes go to index.html for React Router
 [[redirects]]

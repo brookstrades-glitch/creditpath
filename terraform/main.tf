@@ -9,10 +9,14 @@ terraform {
   }
 
   # Terraform Cloud — stores state remotely (free tier)
-  # Run: terraform login
-  # Then: terraform init
+  # Setup:
+  #   1. Create a free account at app.terraform.io
+  #   2. Create an organization, note the exact org name
+  #   3. Replace YOUR_ORG_NAME below with your actual org name (string literal only — no variables allowed in backend blocks)
+  #   4. Run: terraform login
+  #   5. Run: terraform init
   backend "remote" {
-    organization = var.terraform_cloud_org
+    organization = "YOUR_ORG_NAME"   # ← Replace with your Terraform Cloud org name
 
     workspaces {
       name = "creditpath"
@@ -44,5 +48,5 @@ resource "netlify_site" "creditpath" {
 resource "netlify_environment_variable" "node_version" {
   site_id = netlify_site.creditpath.id
   key     = "NODE_VERSION"
-  values  = [{ value = "24", context = "all" }]
+  values  = [{ value = "22", context = "all" }]
 }

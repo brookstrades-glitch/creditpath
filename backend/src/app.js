@@ -1,6 +1,9 @@
 'use strict'
 
-require('dotenv').config()
+// Load .env.local first (dev overrides), then fall back to .env
+// Railway sets env vars directly — dotenv is a no-op in production
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') })
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
 
 const express = require('express')
 const helmet  = require('helmet')
