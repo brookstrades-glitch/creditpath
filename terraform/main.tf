@@ -4,19 +4,12 @@ terraform {
   required_providers {
     netlify = {
       source  = "netlify/netlify"
-      version = "~> 0.1"
+      version = "~> 0.4"
     }
   }
 
-  # Terraform Cloud — stores state remotely (free tier)
-  # Setup:
-  #   1. Create a free account at app.terraform.io
-  #   2. Create an organization, note the exact org name
-  #   3. Replace YOUR_ORG_NAME below with your actual org name (string literal only — no variables allowed in backend blocks)
-  #   4. Run: terraform login
-  #   5. Run: terraform init
   backend "remote" {
-    organization = "YOUR_ORG_NAME"   # ← Replace with your Terraform Cloud org name
+    organization = "creditpath"
 
     workspaces {
       name = "creditpath"
@@ -28,25 +21,27 @@ provider "netlify" {
   token = var.netlify_token
 }
 
-# ── Netlify Site ─────────────────────────────────────────────────────────────
-resource "netlify_site" "creditpath" {
-  name = var.netlify_site_name
-
-  repo {
-    provider    = "github"
-    repo_path   = var.github_repo          # e.g. "brookXXX/creditpath"
-    branch      = "main"
-    command     = "npm run build"
-    dir         = "dist"
-    base        = "frontend"
-  }
+# ── Look up the existing Netlify site (created manually in the UI) ────────────
+data "netlify_site" "creditpath" {
+  name      = var.netlify_site_name
+  team_slug = var.netlify_team_slug
 }
 
-# ── Build Environment Variables (non-secret) ─────────────────────────────────
+# ── Build Settings ────────────────────────────────────────────────────────────
+resource "netlify_site_build_settings" "creditpath" {
+  site_id            = data.netlify_site.creditpath.id
+  base_directory     = "frontend"
+  build_command      = "npm run build"
+  publish_directory  = "dist"
+  production_branch  = "master"
+}
+
+# ── Build Environment Variables (non-secret) ──────────────────────────────────
 # Secrets (VITE_CLERK_PUBLISHABLE_KEY, VITE_API_URL) are set in Netlify UI
 # to avoid storing them in Terraform state
 resource "netlify_environment_variable" "node_version" {
-  site_id = netlify_site.creditpath.id
+  site_id = data.netlify_site.creditpath.id
+  team_id = var.netlify_team_id
   key     = "NODE_VERSION"
   values  = [{ value = "22", context = "all" }]
 }

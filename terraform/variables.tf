@@ -15,6 +15,16 @@ variable "github_repo" {
   type        = string
 }
 
+variable "netlify_team_slug" {
+  description = "Netlify team slug (visible in URL: app.netlify.com/teams/<slug>)"
+  type        = string
+}
+
+variable "netlify_team_id" {
+  description = "Netlify team ID (from API: /api/v1/accounts)"
+  type        = string
+}
+
 variable "terraform_cloud_org" {
   description = "Terraform Cloud organization name"
   type        = string
