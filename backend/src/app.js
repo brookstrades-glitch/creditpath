@@ -2,13 +2,16 @@
 
 // Load .env.local first (dev overrides), then fall back to .env
 // Railway sets env vars directly — dotenv is a no-op in production
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env.local') })
-require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') })
+// __dirname = backend/src, so ../ = backend/
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env.local') })
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') })
 
 const express = require('express')
 const helmet  = require('helmet')
 const cors    = require('cors')
 const cookieParser = require('cookie-parser')
+const path    = require('path')
+const { clerkMiddleware } = require('@clerk/express')
 
 const logger  = require('./lib/logger')
 const { requireAuth } = require('./middleware/auth')
@@ -39,6 +42,10 @@ app.use(cors({
 
 app.use(cookieParser())
 app.use(express.json({ limit: '1mb' })) // Credit data payloads can be large
+
+// Clerk middleware — processes Authorization header and sets auth state on req
+// Must be before any route that calls getAuth()
+app.use(clerkMiddleware())
 
 // ─── Health check — Railway uses this ────────────────────────────────────────
 app.get('/health', (req, res) => {
@@ -78,7 +85,20 @@ app.use((err, req, res, next) => {
   })
 })
 
-// ─── 404 handler ─────────────────────────────────────────────────────────────
+// ─── Static frontend (production only) ───────────────────────────────────────
+// When deployed to Railway, Express serves the Vite build so both frontend
+// and backend live on the same origin — no CORS needed, no Netlify required.
+// In development, Vite's dev server handles the frontend separately.
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../../frontend/dist')
+  app.use(express.static(distPath))
+  // Client-side routing — any non-API path serves index.html
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+}
+
+// ─── 404 handler (API routes only in production) ──────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: { message: 'Not found', code: 'NOT_FOUND' } })
 })
