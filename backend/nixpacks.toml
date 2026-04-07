@@ -1,0 +1,7 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.build]
+cmds = [
+  "npm ci --include=dev && npx prisma generate"
+]
