@@ -3,5 +3,5 @@ nixPkgs = ["nodejs_20"]
 
 [phases.build]
 cmds = [
-  "npm ci && npx prisma generate"
+  "npx prisma generate"
 ]
