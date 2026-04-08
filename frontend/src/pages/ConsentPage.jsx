@@ -49,9 +49,6 @@ export default function ConsentPage() {
     setError(null)
 
     try {
-      // First sync user to our DB (in case this is their first sign-in)
-      await api.post('/auth/sync')
-
       // Store consent with exact text + timestamp
       await api.post('/auth/consent', {
         consentText: buildConsentText(fullName.trim()),
