@@ -34,9 +34,21 @@ app.use(helmet({
   contentSecurityPolicy: false, // Managed by Netlify headers for frontend
 }))
 
+// Support multiple allowed origins via comma-separated ALLOWED_ORIGINS env var
+// e.g. "https://4nbailey.shop,https://creditpathh.netlify.app"
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean)
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
-  credentials: true, // Required for httpOnly cookie
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, server-to-server)
+    if (!origin) return callback(null, true)
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true)
+    callback(new Error(`CORS: origin ${origin} not allowed`))
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 }))
 
