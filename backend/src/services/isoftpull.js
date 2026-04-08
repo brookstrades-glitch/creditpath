@@ -27,6 +27,46 @@ const MOCK_RESPONSES = {
 const DEFAULT_MOCK = require('../mocks/steve-johnson.json')
 
 /**
+ * Normalize the raw iSoftpull API response (or mock) to the flat shape
+ * expected by credit.js, actionPlan.js, and fcraExpiry.js.
+ *
+ * Raw shape:  { reports: { equifax, experian, transunion }, full_feed: { credit_score, trade_accounts, ... } }
+ * Flat shape: { equifax, experian, transunion, scores: { equifax, experian, transunion }, trade_accounts, ... }
+ *
+ * @param {object} raw - Raw API or mock response
+ * @returns {object} Normalized flat report
+ */
+function normalizeReport(raw) {
+  const cs = raw.full_feed?.credit_score || {}
+  return {
+    // Bureau-level status
+    equifax:    raw.reports?.equifax    || { status: 'unknown' },
+    experian:   raw.reports?.experian   || { status: 'unknown' },
+    transunion: raw.reports?.transunion || { status: 'unknown' },
+
+    // Scores grouped by bureau
+    scores: {
+      equifax:    { fico4:   cs.equifax_fico4    ?? null, vantage4: cs.equifax_vantage4    ?? null },
+      transunion: { fico4:   cs.transunion_fico4 ?? null, vantage4: cs.transunion_vantage4 ?? null },
+      experian:   { fico8:   cs.experian_fico8   ?? null, vantage4: cs.experian_vantage4   ?? null },
+    },
+    reason_codes: cs.reason_codes || [],
+
+    // Tradeline data
+    trade_accounts:   raw.full_feed?.trade_accounts   || [],
+    negative_accounts: raw.full_feed?.negative_accounts || [],
+    collections:      raw.full_feed?.collections      || [],
+    public_records:   raw.full_feed?.public_records   || [],
+    inquiries:        raw.full_feed?.inquiries        || [],
+
+    // Preserve mock metadata for debugging
+    _mock:      raw._mock      || false,
+    _applicant: raw._applicant || null,
+    _scenario:  raw._scenario  || null,
+  }
+}
+
+/**
  * Pull credit report from iSoftpull
  * @param {object} fields - All required/optional pull fields per PRD §5.2.1
  * @param {boolean} isHardPull - Hard pull requires SSN + DOB + separate consent
@@ -38,7 +78,7 @@ async function pullCreditReport(fields, isHardPull = false) {
     const mockData = MOCK_RESPONSES[fields.ssn] || DEFAULT_MOCK
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 800))
-    return mockData
+    return normalizeReport(mockData)
   }
 
   if (!process.env.ISOFTPULL_API_KEY || !process.env.ISOFTPULL_API_SECRET) {
@@ -85,7 +125,7 @@ async function pullCreditReport(fields, isHardPull = false) {
     throw err
   }
 
-  return response.data
+  return normalizeReport(response.data)
 }
 
 module.exports = { pullCreditReport }

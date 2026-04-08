@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { format } from 'date-fns'
 import Navbar from '../components/ui/Navbar'
 import { Card, CardHeader, CardTitle, CardBody } from '../components/ui/Card'
@@ -109,33 +109,49 @@ function SummaryStats({ report }) {
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const navigate  = useNavigate()
-  const { user }  = useUser()
+  const { user, isLoaded, isSignedIn } = useAuth()
   const { report, storeReport, setSnapshots, isPulling, setIsPulling, pullError, setPullError } = useReport()
   const [pullErrorMsg, setPullErrorMsg] = useState(null)
   const [snapshots, setLocalSnapshots] = useState([])
+  const [backendError, setBackendError] = useState(null)
 
-  // Redirect to consent if not yet consented
+  // Redirect to consent if not yet consented.
+  // Wait for Clerk to be fully loaded before calling the API —
+  // window.Clerk.session.getToken() is not ready until isLoaded && isSignedIn.
   useEffect(() => {
+    if (!isLoaded || !isSignedIn) return
+
     async function checkConsent() {
       try {
         const { data } = await api.get('/auth/me')
         if (!data.user.hasConsented) {
           navigate('/consent', { replace: true })
         }
-      } catch {
-        // If /me fails (e.g. user not in DB yet), sync first
-        try {
-          const { data } = await api.post('/auth/sync')
-          if (!data.user.hasConsented) {
-            navigate('/consent', { replace: true })
+      } catch (err) {
+        const status = err.response?.status
+        const code   = err.response?.data?.error?.code || err.code || 'NETWORK_ERROR'
+        console.error('[checkConsent] /auth/me failed:', status, code, err.message)
+
+        // If /me 404s or 401s the user isn't in our DB yet — run sync
+        if (status === 401 || status === 404) {
+          try {
+            const { data } = await api.post('/auth/sync')
+            if (!data.user.hasConsented) {
+              navigate('/consent', { replace: true })
+            }
+          } catch (syncErr) {
+            const syncStatus = syncErr.response?.status
+            const syncCode   = syncErr.response?.data?.error?.code || syncErr.code || 'NETWORK_ERROR'
+            console.error('[checkConsent] /auth/sync failed:', syncStatus, syncCode, syncErr.message)
+            setBackendError(`Server error (sync ${syncStatus ?? 'network'}: ${syncCode}). Is the backend running on port 3001?`)
           }
-        } catch {
-          navigate('/sign-in', { replace: true })
+        } else {
+          setBackendError(`Server error (me ${status ?? 'network'}: ${code}). Is the backend running on port 3001?`)
         }
       }
     }
     checkConsent()
-  }, [navigate])
+  }, [isLoaded, isSignedIn, navigate])
 
   // Load snapshots on mount
   useEffect(() => {
@@ -179,10 +195,16 @@ export default function DashboardPage() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
+        {backendError && (
+          <Alert variant="error" title="Backend offline">
+            {backendError}
+          </Alert>
+        )}
+
         {/* Welcome */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome{user?.firstName ? `, ${user.firstName}` : ''}
+            Welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {report

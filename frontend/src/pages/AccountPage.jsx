@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useUser, useClerk } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import Navbar from '../components/ui/Navbar'
@@ -16,8 +16,7 @@ const US_STATES = [
 ]
 
 export default function AccountPage() {
-  const { user: clerkUser } = useUser()
-  const { signOut }         = useClerk()
+  const { signOut } = useAuth()
   const navigate            = useNavigate()
 
   const [account,    setAccount]    = useState(null)

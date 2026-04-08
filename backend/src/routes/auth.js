@@ -1,86 +1,75 @@
 'use strict'
 
 /**
- * Auth routes — user sync and FCRA consent
+ * Auth routes — register, login, consent, me
  *
- * These routes verify the Clerk JWT directly (not via requireAuth middleware)
- * because the user may not yet exist in our DB on first sign-in.
- *
- * Route list:
- *   POST /api/auth/sync    — Create/return our DB user after Clerk sign-in
- *   POST /api/auth/consent — Store FCRA §604(a)(2) consent text + timestamp
- *   GET  /api/auth/me      — Return current user profile (protected)
+ *   POST /api/auth/register  — Create account, return JWT
+ *   POST /api/auth/login     — Verify password, return JWT
+ *   GET  /api/auth/me        — Return current user (protected)
+ *   POST /api/auth/consent   — Store FCRA §604(a)(2) consent (protected)
  */
 
-const express  = require('express')
-const { z }    = require('zod')
-const { createClerkClient } = require('@clerk/backend')
-const { PrismaClient }      = require('@prisma/client')
-const logger   = require('../lib/logger')
+const express = require('express')
+const bcrypt  = require('bcrypt')
+const jwt     = require('jsonwebtoken')
+const { z }   = require('zod')
+const { PrismaClient } = require('@prisma/client')
+const logger  = require('../lib/logger')
 const { requireAuth } = require('../middleware/auth')
 
 const router = express.Router()
 const prisma = new PrismaClient()
 
-const clerk = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY,
-})
+const SALT_ROUNDS = 12
+const TOKEN_TTL   = '30d'
 
-// ─── Helper: verify Clerk token and return clerkId ───────────────────────────
-async function verifyToken(req, res) {
-  const sessionToken = req.headers.authorization?.replace('Bearer ', '')
-  if (!sessionToken) {
-    res.status(401).json({ error: { message: 'Authentication required', code: 'UNAUTHORIZED' } })
-    return null
-  }
-  try {
-    const { sub: clerkId } = await clerk.verifyToken(sessionToken)
-    return clerkId
-  } catch {
-    res.status(401).json({ error: { message: 'Invalid session token', code: 'INVALID_SESSION' } })
-    return null
-  }
+function signToken(user) {
+  return jwt.sign(
+    { userId: user.id, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: TOKEN_TTL }
+  )
 }
 
-// ─── POST /api/auth/sync ─────────────────────────────────────────────────────
-// Called by the frontend right after Clerk sign-in/sign-up.
-// Upserts the user in our DB so requireAuth works on subsequent requests.
-router.post('/sync', async (req, res, next) => {
+// ─── POST /api/auth/register ─────────────────────────────────────────────────
+const RegisterSchema = z.object({
+  email:    z.string().email(),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
+router.post('/register', async (req, res, next) => {
   try {
-    const clerkId = await verifyToken(req, res)
-    if (!clerkId) return
-
-    // Fetch user details from Clerk
-    const clerkUser = await clerk.users.getUser(clerkId)
-    const email     = clerkUser.emailAddresses?.[0]?.emailAddress
-
-    if (!email) {
+    const parsed = RegisterSchema.safeParse(req.body)
+    if (!parsed.success) {
       return res.status(400).json({
-        error: { message: 'No email address on Clerk account', code: 'NO_EMAIL' }
+        error: { message: parsed.error.errors[0].message, code: 'VALIDATION_ERROR' }
       })
     }
 
-    // Upsert — safe on both first sign-in and repeat calls
-    const user = await prisma.user.upsert({
-      where:  { clerkId },
-      update: { email }, // Keep email in sync if user changes it in Clerk
-      create: { clerkId, email },
-      select: {
-        id: true,
-        email: true,
-        state: true,
-        fcraConsentAt: true,
-      }
+    const { email, password } = parsed.data
+
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      return res.status(409).json({
+        error: { message: 'An account with this email already exists', code: 'EMAIL_TAKEN' }
+      })
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
+    const user = await prisma.user.create({
+      data: { email, passwordHash },
+      select: { id: true, email: true, state: true, fcraConsentAt: true }
     })
 
-    logger.info({ message: 'User synced', userId: user.id })
+    logger.info({ message: 'User registered', userId: user.id })
 
-    return res.json({
+    return res.status(201).json({
+      token: signToken(user),
       user: {
-        id:            user.id,
-        email:         user.email,
-        state:         user.state,
-        hasConsented:  !!user.fcraConsentAt,
+        id:           user.id,
+        email:        user.email,
+        state:        user.state,
+        hasConsented: false,
       }
     })
   } catch (err) {
@@ -88,10 +77,66 @@ router.post('/sync', async (req, res, next) => {
   }
 })
 
+// ─── POST /api/auth/login ────────────────────────────────────────────────────
+const LoginSchema = z.object({
+  email:    z.string().email(),
+  password: z.string().min(1),
+})
+
+router.post('/login', async (req, res, next) => {
+  try {
+    const parsed = LoginSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: { message: 'Email and password are required', code: 'VALIDATION_ERROR' }
+      })
+    }
+
+    const { email, password } = parsed.data
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, passwordHash: true, state: true, fcraConsentAt: true }
+    })
+
+    // Constant-time compare to prevent user enumeration
+    const match = user ? await bcrypt.compare(password, user.passwordHash) : false
+    if (!user || !match) {
+      return res.status(401).json({
+        error: { message: 'Invalid email or password', code: 'INVALID_CREDENTIALS' }
+      })
+    }
+
+    logger.info({ message: 'User logged in', userId: user.id })
+
+    return res.json({
+      token: signToken(user),
+      user: {
+        id:           user.id,
+        email:        user.email,
+        state:        user.state,
+        hasConsented: !!user.fcraConsentAt,
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
+router.get('/me', requireAuth, (req, res) => {
+  return res.json({
+    user: {
+      id:           req.user.id,
+      email:        req.user.email,
+      state:        req.user.state,
+      hasConsented: !!req.user.fcraConsentAt,
+      consentAt:    req.user.fcraConsentAt,
+    }
+  })
+})
+
 // ─── POST /api/auth/consent ───────────────────────────────────────────────────
-// Stores FCRA §604(a)(2) consent.
-// The full consent text and UTC timestamp are stored in the DB.
-// This must be called before any credit pull.
 const ConsentSchema = z.object({
   consentText: z.string().min(50, 'Consent text too short — full text required'),
   state:       z.string().length(2).toUpperCase().optional(),
@@ -102,7 +147,7 @@ router.post('/consent', requireAuth, async (req, res, next) => {
     const parsed = ConsentSchema.safeParse(req.body)
     if (!parsed.success) {
       return res.status(400).json({
-        error: { message: 'Invalid consent data', code: 'VALIDATION_ERROR', details: parsed.error.flatten() }
+        error: { message: 'Invalid consent data', code: 'VALIDATION_ERROR' }
       })
     }
 
@@ -120,26 +165,10 @@ router.post('/consent', requireAuth, async (req, res, next) => {
 
     logger.info({ message: 'FCRA consent stored', userId: req.user.id })
 
-    return res.json({
-      message: 'Consent recorded',
-      consentAt: updated.fcraConsentAt,
-    })
+    return res.json({ message: 'Consent recorded', consentAt: updated.fcraConsentAt })
   } catch (err) {
     next(err)
   }
-})
-
-// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
-router.get('/me', requireAuth, async (req, res) => {
-  return res.json({
-    user: {
-      id:           req.user.id,
-      email:        req.user.email,
-      state:        req.user.state,
-      hasConsented: !!req.user.fcraConsentAt,
-      consentAt:    req.user.fcraConsentAt,
-    }
-  })
 })
 
 module.exports = router

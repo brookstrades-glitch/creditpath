@@ -12,9 +12,8 @@
     "db:studio": "npx prisma studio"
   },
   "dependencies": {
-    "@clerk/backend": "^3.2.4",
-    "@clerk/express": "^2.0.8",
     "@prisma/client": "^5.22.0",
+    "jsonwebtoken": "^9.0.2",
     "prisma": "^5.22.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",

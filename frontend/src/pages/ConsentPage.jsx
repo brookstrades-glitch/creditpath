@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { Card } from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Alert from '../components/ui/Alert'
@@ -30,9 +30,9 @@ const ENHANCED_STATES = {
 
 export default function ConsentPage() {
   const navigate   = useNavigate()
-  const { user }   = useUser()
+  const { user } = useAuth()
 
-  const [fullName,  setFullName]  = useState(user?.fullName || '')
+  const [fullName,  setFullName]  = useState('')
   const [state,     setState]     = useState('TX') // Default from PRD §3.6
   const [checked,   setChecked]   = useState(false)
   const [loading,   setLoading]   = useState(false)

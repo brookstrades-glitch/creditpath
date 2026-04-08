@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext.jsx'
 import { Navigate } from 'react-router-dom'
 import Button from '../components/ui/Button'
 

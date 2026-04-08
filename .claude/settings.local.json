@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/brook/projects/creditpath/terraform && terraform init 2>&1)",
+      "Read(//c/Users/brook/AppData/Roaming/terraform.d/**)",
+      "Read(//c/Users/brook/projects/creditpath/$HOME/.terraform.d/**)",
+      "Bash(export TF_CLI_CONFIG_FILE=\"C:/Users/brook/AppData/Roaming/terraform.d/credentials.tfrc.json\" && cd /c/Users/brook/projects/creditpath/terraform && terraform init 2>&1)",
+      "Bash(export TF_CLI_CONFIG_FILE=\"C:/Users/brook/AppData/Roaming/terraform.d/credentials.tfrc.json\" && terraform apply -auto-approve 2>&1)",
+      "WebFetch(domain:registry.terraform.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(netlify --version 2>&1)",
+      "Bash(npm list:*)",
+      "Bash(curl -s -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \"https://api.netlify.com/api/v1/sites/candid-beijinho-6df9ab\" | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('site_id:', d.get\\('id'\\)\\); print\\('name:', d.get\\('name'\\)\\); print\\('account_slug:', d.get\\('account_slug'\\)\\); print\\('url:', d.get\\('url'\\)\\)\")",
+      "Bash(curl -s -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \"https://api.netlify.com/api/v1/sites?filter=all\" | python3 -c \"import json,sys; sites=json.load\\(sys.stdin\\); [print\\(s.get\\('name'\\), '|', s.get\\('id'\\), '|', s.get\\('account_slug'\\)\\) for s in \\(sites if isinstance\\(sites, list\\) else []\\)]\")",
+      "Bash(export TF_CLI_CONFIG_FILE=\"C:/Users/brook/AppData/Roaming/terraform.d/credentials.tfrc.json\" && terraform init -upgrade 2>&1)",
+      "Bash(curl -s -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \"https://api.netlify.com/api/v1/accounts\" | python3 -c \"import json,sys; accounts=json.load\\(sys.stdin\\); [print\\('id:', a.get\\('id'\\), '| slug:', a.get\\('slug'\\), '| name:', a.get\\('name'\\)\\) for a in accounts]\")",
+      "Bash(curl -s -X POST \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d \"{\\\\\"site_id\\\\\":\\\\\"485d62be-1238-4f0a-b64f-eab7c7f7346b\\\\\",\\\\\"key\\\\\":\\\\\"VITE_CLERK_PUBLISHABLE_KEY\\\\\",\\\\\"values\\\\\":[{\\\\\"value\\\\\":\\\\\"pk_test_ZnJhbmstZmVycmV0LTExLmNsZXJrLmFjY291bnRzLmRldiQ\\\\\",\\\\\"context\\\\\":\\\\\"all\\\\\"}]}\" | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('key:', d.get\\('key'\\), '| created:', 'id' in d\\)\")",
+      "Bash(curl -s -X POST \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d \"{\\\\\"site_id\\\\\":\\\\\"485d62be-1238-4f0a-b64f-eab7c7f7346b\\\\\",\\\\\"key\\\\\":\\\\\"VITE_CLERK_PUBLISHABLE_KEY\\\\\",\\\\\"values\\\\\":[{\\\\\"value\\\\\":\\\\\"pk_test_ZnJhbmstZmVycmV0LTExLmNsZXJrLmFjY291bnRzLmRldiQ\\\\\",\\\\\"context\\\\\":\\\\\"all\\\\\"}]}\" 2>&1)",
+      "Bash(curl -s -X POST \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env?site_id=485d62be-1238-4f0a-b64f-eab7c7f7346b\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '[{\"key\":\"VITE_CLERK_PUBLISHABLE_KEY\",\"values\":[{\"value\":\"pk_test_ZnJhbmstZmVycmV0LTExLmNsZXJrLmFjY291bnRzLmRldiQ\",\"context\":\"all\"}]}]' 2>&1)",
+      "Bash(curl -s -X PATCH \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env/VITE_CLERK_PUBLISHABLE_KEY?site_id=485d62be-1238-4f0a-b64f-eab7c7f7346b\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"values\":[{\"value\":\"pk_test_ZnJhbmstZmVycmV0LTExLmNsZXJrLmFjY291bnRzLmRldiQ\",\"context\":\"all\"}]}' 2>&1)",
+      "Bash(curl -s -X PUT \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env/VITE_CLERK_PUBLISHABLE_KEY?site_id=485d62be-1238-4f0a-b64f-eab7c7f7346b\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"key\":\"VITE_CLERK_PUBLISHABLE_KEY\",\"values\":[{\"value\":\"pk_test_ZnJhbmstZmVycmV0LTExLmNsZXJrLmFjY291bnRzLmRldiQ\",\"context\":\"all\"}]}' 2>&1)",
+      "Bash(curl -s -X PUT \"https://api.netlify.com/api/v1/accounts/69aa3362e001f0529b7d8271/env/VITE_API_URL?site_id=485d62be-1238-4f0a-b64f-eab7c7f7346b\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" \\\\\n  -d '{\"key\":\"VITE_API_URL\",\"values\":[{\"value\":\"https://creditpath-production.up.railway.app\",\"context\":\"all\"}]}' 2>&1)",
+      "Bash(curl -s -X POST \"https://api.netlify.com/api/v1/sites/485d62be-1238-4f0a-b64f-eab7c7f7346b/builds\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" \\\\\n  -H \"Content-Type: application/json\" 2>&1)",
+      "Bash(sleep 30 && curl -s \"https://api.netlify.com/api/v1/sites/485d62be-1238-4f0a-b64f-eab7c7f7346b/deploys?per_page=1\" \\\\\n  -H \"Authorization: Bearer nfp_oSeyDGPsK77y9njDLxzVFA8cuwsXZq1tc550\" | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\)[0]; print\\('state:', d.get\\('state'\\)\\); print\\('error:', d.get\\('error_message'\\)\\); print\\('url:', d.get\\('deploy_ssl_url'\\)\\)\")",
+      "Bash(git add:*)"
+    ]
+  }
+}

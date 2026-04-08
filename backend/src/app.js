@@ -11,7 +11,7 @@ const helmet  = require('helmet')
 const cors    = require('cors')
 const cookieParser = require('cookie-parser')
 const path    = require('path')
-const { clerkMiddleware } = require('@clerk/express')
+// JWT auth — see middleware/auth.js
 
 const logger  = require('./lib/logger')
 const { requireAuth } = require('./middleware/auth')
@@ -43,9 +43,7 @@ app.use(cors({
 app.use(cookieParser())
 app.use(express.json({ limit: '1mb' })) // Credit data payloads can be large
 
-// Clerk middleware — processes Authorization header and sets auth state on req
-// Must be before any route that calls getAuth()
-app.use(clerkMiddleware())
+// Auth is handled per-route via requireAuth middleware (JWT)
 
 // ─── Health check — Railway uses this ────────────────────────────────────────
 app.get('/health', (req, res) => {

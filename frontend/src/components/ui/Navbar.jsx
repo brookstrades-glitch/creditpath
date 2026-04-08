@@ -1,5 +1,5 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useAuth, UserButton } from '@clerk/clerk-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import { clsx } from 'clsx'
 
 const NAV_ITEMS = [
@@ -13,9 +13,15 @@ const NAV_ITEMS = [
 
 export default function Navbar() {
   const { pathname } = useLocation()
-  const { isSignedIn } = useAuth()
+  const navigate     = useNavigate()
+  const { isSignedIn, signOut, user } = useAuth()
 
   if (!isSignedIn) return null
+
+  function handleSignOut() {
+    signOut()
+    navigate('/', { replace: true })
+  }
 
   return (
     <nav className="bg-primary-900 border-b border-primary-800 sticky top-0 z-40">
@@ -29,7 +35,7 @@ export default function Navbar() {
             <span className="text-white font-semibold text-sm tracking-wide">CreditPath</span>
           </Link>
 
-          {/* Nav links — hidden on mobile */}
+          {/* Nav links */}
           <div className="hidden md:flex items-center gap-0.5">
             {NAV_ITEMS.map(item => (
               <Link
@@ -47,16 +53,17 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* User button */}
-          <div className="flex items-center">
-            <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: 'w-8 h-8',
-                }
-              }}
-            />
+          {/* Account + sign out */}
+          <div className="flex items-center gap-3">
+            <Link to="/account" className="text-primary-200 hover:text-white text-sm">
+              {user?.email?.split('@')[0]}
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="text-primary-300 hover:text-white text-sm transition-colors"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>
