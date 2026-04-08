@@ -1,9 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../lib/api.js'
 
 const AuthContext = createContext(null)
 
-const API = import.meta.env.VITE_API_URL || '/api'
 const TOKEN_KEY = 'cp_token'
 
 export function AuthProvider({ children }) {
@@ -15,23 +14,21 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem(TOKEN_KEY)
     if (!token) { setIsLoaded(true); return }
 
-    axios.get(`${API}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    api.get('/auth/me')
       .then(({ data }) => setUser(data.user))
       .catch(() => localStorage.removeItem(TOKEN_KEY))
       .finally(() => setIsLoaded(true))
   }, [])
 
   async function signUp(email, password) {
-    const { data } = await axios.post(`${API}/auth/register`, { email, password })
+    const { data } = await api.post('/auth/register', { email, password })
     localStorage.setItem(TOKEN_KEY, data.token)
     setUser(data.user)
     return data.user
   }
 
   async function signIn(email, password) {
-    const { data } = await axios.post(`${API}/auth/login`, { email, password })
+    const { data } = await api.post('/auth/login', { email, password })
     localStorage.setItem(TOKEN_KEY, data.token)
     setUser(data.user)
     return data.user
