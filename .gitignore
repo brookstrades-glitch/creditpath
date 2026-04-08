@@ -36,8 +36,7 @@ coverage/
 Thumbs.db
 *.tsbuildinfo
 
-# Prisma
-backend/prisma/migrations/
+# Prisma - migrations must be committed for prisma migrate deploy to work on Railway
 
 # Terraform
 terraform/.terraform/
