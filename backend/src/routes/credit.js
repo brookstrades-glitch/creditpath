@@ -106,13 +106,17 @@ router.post('/pull', async (req, res, next) => {
 
     logger.info({ message: 'Credit pull completed', userId: req.user.id })
 
-    // Return processed report — this lives in React state only, never re-stored
+    const fullReport = { ...rawReport, actionPlan, itemsWithExpiry }
+
+    // Persist the full report so it reloads on next login
+    await prisma.storedReport.upsert({
+      where:  { userId: req.user.id },
+      update: { report: fullReport, pulledAt: new Date(), updatedAt: new Date() },
+      create: { userId: req.user.id, report: fullReport },
+    })
+
     return res.json({
-      report: {
-        ...rawReport,
-        actionPlan,
-        itemsWithExpiry,
-      },
+      report:   fullReport,
       pulledAt: new Date().toISOString(),
       pullType: fields.pullType,
     })
@@ -123,6 +127,24 @@ router.post('/pull', async (req, res, next) => {
         error: { message: err.message, code: 'ISOFTPULL_TIMEOUT' }
       })
     }
+    next(err)
+  }
+})
+
+// ─── GET /api/credit/last-report ─────────────────────────────────────────────
+router.get('/last-report', async (req, res, next) => {
+  try {
+    const stored = await prisma.storedReport.findUnique({
+      where: { userId: req.user.id },
+    })
+
+    if (!stored) return res.json({ report: null })
+
+    return res.json({
+      report:   stored.report,
+      pulledAt: stored.pulledAt.toISOString(),
+    })
+  } catch (err) {
     next(err)
   }
 })

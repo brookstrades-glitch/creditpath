@@ -142,15 +142,22 @@ export default function DashboardPage() {
     checkConsent()
   }, [isLoaded, isSignedIn, navigate])
 
-  // Load snapshots on mount
+  // Load last report + snapshots on mount
   useEffect(() => {
+    // Only load if no report already in context (e.g. navigated back from another page)
+    if (!report) {
+      api.get('/credit/last-report')
+        .then(({ data }) => { if (data.report) storeReport(data.report) })
+        .catch(() => {})
+    }
+
     api.get('/credit/snapshots')
       .then(({ data }) => {
         setLocalSnapshots(data.snapshots || [])
         setSnapshots(data.snapshots || [])
       })
       .catch(() => {})
-  }, [setSnapshots])
+  }, [setSnapshots]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handlePull(fields) {
     setIsPulling(true)

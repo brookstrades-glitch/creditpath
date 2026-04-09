@@ -26,6 +26,17 @@ model User {
   letters      Letter[]
   negotiations Negotiation[]
   pullSnapshots PullSnapshot[]
+  storedReport  StoredReport?
+}
+
+// Full report persisted per user — upserted on every pull so dashboard reloads last report on login
+model StoredReport {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  report    Json
+  pulledAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Lightweight aggregate metadata per pull — enables delta view without storing PII
