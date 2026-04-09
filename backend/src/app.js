@@ -18,7 +18,8 @@ const { requireAuth } = require('./middleware/auth')
 const rateLimiter = require('./middleware/rateLimit')
 
 // Routes
-const authRoutes       = require('./routes/auth')
+const authRoutes          = require('./routes/auth')
+const microsoftAuthRoutes = require('./routes/authMicrosoft')
 const creditRoutes     = require('./routes/credit')
 const disputeRoutes    = require('./routes/disputes')
 const letterRoutes     = require('./routes/letters')
@@ -63,7 +64,8 @@ app.get('/health', (req, res) => {
 })
 
 // ─── Public routes ────────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes)
+app.use('/api/auth',           authRoutes)
+app.use('/api/auth/microsoft', microsoftAuthRoutes)
 
 // ─── Protected routes — all require valid Clerk JWT ──────────────────────────
 app.use('/api/credit',    requireAuth, rateLimiter, creditRoutes)

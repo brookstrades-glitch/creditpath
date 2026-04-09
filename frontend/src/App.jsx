@@ -4,9 +4,10 @@ import { useEffect } from 'react'
 import { ReportProvider } from './context/ReportContext.jsx'
 
 // Pages
-import LandingPage     from './pages/LandingPage.jsx'
-import SignInPage      from './pages/SignInPage.jsx'
-import SignUpPage      from './pages/SignUpPage.jsx'
+import LandingPage       from './pages/LandingPage.jsx'
+import SignInPage        from './pages/SignInPage.jsx'
+import SignUpPage        from './pages/SignUpPage.jsx'
+import AuthCallbackPage  from './pages/AuthCallbackPage.jsx'
 import ConsentPage     from './pages/ConsentPage.jsx'
 import DashboardPage   from './pages/DashboardPage.jsx'
 import ActionPlanPage  from './pages/ActionPlanPage.jsx'
@@ -43,8 +44,9 @@ export default function App() {
       <ReportProvider>
         <Routes>
           <Route path="/"        element={<LandingPage />} />
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
+          <Route path="/sign-in"      element={<SignInPage />} />
+          <Route path="/sign-up"      element={<SignUpPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
           <Route path="/consent" element={<ProtectedRoute><ConsentPage /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
