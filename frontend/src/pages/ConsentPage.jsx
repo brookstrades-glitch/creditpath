@@ -53,6 +53,7 @@ export default function ConsentPage() {
       await api.post('/auth/consent', {
         consentText: buildConsentText(fullName.trim()),
         state,
+        name: fullName.trim(),
       })
 
       navigate('/dashboard')

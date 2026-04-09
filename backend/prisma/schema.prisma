@@ -14,6 +14,7 @@ model User {
   id           String   @id @default(cuid())
   email        String   @unique
   passwordHash String
+  name         String?
   // State collected at registration for state law compliance (CA, CO, MA, VT)
   state        String?
   // FCRA §604(a)(2) consent — full text + timestamp — legally required

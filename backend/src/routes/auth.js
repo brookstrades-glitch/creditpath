@@ -129,6 +129,7 @@ router.get('/me', requireAuth, (req, res) => {
     user: {
       id:           req.user.id,
       email:        req.user.email,
+      name:         req.user.name || null,
       state:        req.user.state,
       hasConsented: !!req.user.fcraConsentAt,
       consentAt:    req.user.fcraConsentAt,
@@ -140,6 +141,7 @@ router.get('/me', requireAuth, (req, res) => {
 const ConsentSchema = z.object({
   consentText: z.string().min(50, 'Consent text too short — full text required'),
   state:       z.string().length(2).toUpperCase().optional(),
+  name:        z.string().min(1).optional(),
 })
 
 router.post('/consent', requireAuth, async (req, res, next) => {
@@ -151,7 +153,7 @@ router.post('/consent', requireAuth, async (req, res, next) => {
       })
     }
 
-    const { consentText, state } = parsed.data
+    const { consentText, state, name } = parsed.data
 
     const updated = await prisma.user.update({
       where: { id: req.user.id },
@@ -159,6 +161,7 @@ router.post('/consent', requireAuth, async (req, res, next) => {
         fcraConsentAt: new Date(),
         consentText,
         ...(state ? { state } : {}),
+        ...(name  ? { name }  : {}),
       },
       select: { id: true, fcraConsentAt: true, state: true }
     })

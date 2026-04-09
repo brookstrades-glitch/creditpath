@@ -199,7 +199,7 @@ export default function DashboardPage() {
         {/* Welcome */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            Welcome{user?.email ? `, ${user.email.split('@')[0]}` : ''}
+            Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : user?.email ? `, ${user.email.split('@')[0]}` : ''}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             {report

@@ -20,6 +20,7 @@ async function requireAuth(req, res, next) {
       select: {
         id:            true,
         email:         true,
+        name:          true,
         state:         true,
         fcraConsentAt: true,
         consentText:   true,
