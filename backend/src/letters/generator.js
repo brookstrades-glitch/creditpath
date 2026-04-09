@@ -206,7 +206,7 @@ function buildLetter(doc, options) {
         `To Whom It May Concern:\n\n` +
         `I am writing to dispute the following inaccurate information in my credit file:\n\n` +
         `Account/Item: ${itemDesc}\nAccount Number: ${acctNum}\n\n` +
-        `The specific inaccuracy is: [Describe the exact error — e.g., wrong balance, wrong status, account not mine]\n\n` +
+        `The specific inaccuracy is: ${itemDesc}\n\n` +
         `I am requesting that this item be corrected to reflect accurate information or deleted if ` +
         `it cannot be verified. I have enclosed [list any documentation] supporting this dispute.\n\n` +
         `Under FCRA § 611(a)(1)(A), please complete your reinvestigation within 30 days and notify ` +
