@@ -19,8 +19,10 @@ const prisma  = new PrismaClient()
 
 const CLIENT_ID     = process.env.MICROSOFT_CLIENT_ID
 const CLIENT_SECRET = process.env.MICROSOFT_CLIENT_SECRET
-// Use 'common' to allow personal Microsoft accounts + any org tenant
-const TENANT_ID     = process.env.MICROSOFT_TENANT_ID || 'common'
+// Use 'consumers' to restrict to personal Microsoft accounts only (Outlook, Hotmail, Live)
+// This avoids the "Need admin approval" screen that org/work accounts trigger.
+// Change to 'common' if you want to support work accounts too.
+const TENANT_ID     = process.env.MICROSOFT_TENANT_ID || 'consumers'
 const REDIRECT_URI  = process.env.MICROSOFT_REDIRECT_URI
   || 'https://creditpath-production.up.railway.app/api/auth/microsoft/callback'
 const FRONTEND_URL  = process.env.FRONTEND_URL || 'https://4nbailey.shop'
