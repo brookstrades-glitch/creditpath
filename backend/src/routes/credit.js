@@ -15,6 +15,7 @@ const express = require('express')
 const { z }   = require('zod')
 const { PrismaClient }   = require('@prisma/client')
 const { pullCreditReport } = require('../services/isoftpull')
+const { recordPull }       = require('../middleware/rateLimit')
 const { generateActionPlan } = require('../services/actionPlan')
 const { attachExpiryData }   = require('../services/fcraExpiry')
 const logger = require('../lib/logger')
@@ -68,7 +69,8 @@ router.post('/pull', async (req, res, next) => {
     const fields     = parsed.data
     const isHardPull = fields.pullType === 'hard'
 
-    // Rate limiter middleware already ran — this is a safety net
+    // Record the pull attempt now that validation has passed
+    recordPull(req.user.id)
     logger.info({ message: 'Credit pull initiated', userId: req.user.id, pullType: fields.pullType })
 
     // Pull from iSoftpull (or mock if USE_MOCK=true)

@@ -15,7 +15,7 @@ const path    = require('path')
 
 const logger  = require('./lib/logger')
 const { requireAuth } = require('./middleware/auth')
-const rateLimiter = require('./middleware/rateLimit')
+const { checkRateLimit } = require('./middleware/rateLimit')
 
 // Routes
 const authRoutes          = require('./routes/auth')
@@ -68,7 +68,7 @@ app.use('/api/auth',           authRoutes)
 app.use('/api/auth/microsoft', microsoftAuthRoutes)
 
 // ─── Protected routes — all require valid Clerk JWT ──────────────────────────
-app.use('/api/credit',    requireAuth, rateLimiter, creditRoutes)
+app.use('/api/credit',    requireAuth, checkRateLimit, creditRoutes)
 app.use('/api/disputes',  requireAuth, disputeRoutes)
 app.use('/api/letters',   requireAuth, letterRoutes)
 app.use('/api/negotiate', requireAuth, negotiateRoutes)

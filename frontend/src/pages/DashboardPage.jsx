@@ -132,21 +132,10 @@ export default function DashboardPage() {
         const code   = err.response?.data?.error?.code || err.code || 'NETWORK_ERROR'
         console.error('[checkConsent] /auth/me failed:', status, code, err.message)
 
-        // If /me 404s or 401s the user isn't in our DB yet — run sync
-        if (status === 401 || status === 404) {
-          try {
-            const { data } = await api.post('/auth/sync')
-            if (!data.user.hasConsented) {
-              navigate('/consent', { replace: true })
-            }
-          } catch (syncErr) {
-            const syncStatus = syncErr.response?.status
-            const syncCode   = syncErr.response?.data?.error?.code || syncErr.code || 'NETWORK_ERROR'
-            console.error('[checkConsent] /auth/sync failed:', syncStatus, syncCode, syncErr.message)
-            setBackendError(`Server error (sync ${syncStatus ?? 'network'}: ${syncCode}). Is the backend running on port 3001?`)
-          }
+        if (status === 401) {
+          navigate('/sign-in', { replace: true })
         } else {
-          setBackendError(`Server error (me ${status ?? 'network'}: ${code}). Is the backend running on port 3001?`)
+          setBackendError(`Server error (${status ?? 'network'}: ${code}). Please refresh.`)
         }
       }
     }
@@ -181,6 +170,12 @@ export default function DashboardPage() {
         setPullErrorMsg(`Please wait ${Math.ceil(secs / 60)} minute(s) before pulling again.`)
       } else if (code === 'DAILY_LIMIT_REACHED') {
         setPullErrorMsg(`Daily pull limit reached. Resets tomorrow.`)
+      } else if (code === 'VALIDATION_ERROR') {
+        const details = err.response?.data?.error?.details?.fieldErrors
+        const firstField = details ? Object.entries(details)[0] : null
+        setPullErrorMsg(firstField
+          ? `Invalid field "${firstField[0]}": ${firstField[1][0]}`
+          : 'Please check all fields and try again.')
       } else {
         setPullErrorMsg(msg || 'Credit pull failed. Please try again.')
       }
