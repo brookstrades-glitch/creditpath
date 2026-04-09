@@ -55,9 +55,9 @@ export default function Navbar() {
 
           {/* Account + sign out */}
           <div className="flex items-center gap-3">
-            <Link to="/account" className="text-primary-200 hover:text-white text-sm">
-              {user?.email?.split('@')[0]}
-            </Link>
+            <span className="text-primary-200 text-sm">
+              {user?.name?.split(' ')[0] || user?.email?.split('@')[0]}
+            </span>
             <button
               onClick={handleSignOut}
               className="text-primary-300 hover:text-white text-sm transition-colors"
