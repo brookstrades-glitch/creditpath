@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import Navbar from '../components/ui/Navbar'
 import { Card } from '../components/ui/Card'
@@ -190,14 +190,18 @@ function GenerateModal({ letter, onClose }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function LettersPage() {
   const [searchParams] = useSearchParams()
-  const [selected,  setSelected]  = useState(null)
+  const navigate       = useNavigate()
+  const [selected,  setSelected]  = useState(() => {
+    // Auto-open if coming from action plan link — only on initial mount
+    const num = parseInt(searchParams.get('letter'))
+    return num ? LETTERS.find(l => l.n === num) || null : null
+  })
   const [filter,    setFilter]    = useState('all')
 
-  // Auto-open if coming from action plan link
-  const preselectedNum = parseInt(searchParams.get('letter'))
-  if (preselectedNum && !selected) {
-    const letter = LETTERS.find(l => l.n === preselectedNum)
-    if (letter) setSelected(letter)
+  function handleClose() {
+    setSelected(null)
+    // Clear URL params so closing doesn't re-trigger the auto-open
+    if (searchParams.get('letter')) navigate('/letters', { replace: true })
   }
 
   const filtered = filter === 'all' ? LETTERS : LETTERS.filter(l => l.path === filter)
@@ -244,7 +248,7 @@ export default function LettersPage() {
       </main>
 
       {selected && (
-        <GenerateModal letter={selected} onClose={() => setSelected(null)} />
+        <GenerateModal letter={selected} onClose={handleClose} />
       )}
     </div>
   )
