@@ -58,7 +58,11 @@ function generateLetter(options) {
 
 // ─── Layout helpers ───────────────────────────────────────────────────────────
 function header(doc, options) {
-  const today = format(new Date(), 'MMMM d, yyyy')
+  const today    = format(new Date(), 'MMMM d, yyyy')
+  const name     = options.fullName     || options.user.name  || options.user.email
+  const address  = options.address      || ''
+  const cityZip  = options.cityStateZip || ''
+  const phone    = options.phone        || ''
 
   // CreditPath branding — minimal
   doc
@@ -68,13 +72,13 @@ function header(doc, options) {
     .text('NOT a Credit Repair Organization per 15 U.S.C. § 1679a(3)', { align: 'right' })
     .moveDown(0.5)
 
-  // Sender info
-  doc
-    .fontSize(11)
-    .fillColor('#111827')
-    .text(options.user.email)
-    .text(today)
-    .moveDown(1)
+  // Sender info block
+  doc.fontSize(11).fillColor('#111827')
+  doc.text(name)
+  if (address)  doc.text(address)
+  if (cityZip)  doc.text(cityZip)
+  if (phone)    doc.text(phone)
+  doc.text(today).moveDown(1)
 }
 
 function recipientBlock(doc, recipientAddress) {
@@ -117,7 +121,12 @@ function legalDisclaimer(doc) {
     )
 }
 
-function signature(doc) {
+function signature(doc, options) {
+  const name    = options.fullName     || options.user.name  || options.user.email
+  const address = options.address      || ''
+  const cityZip = options.cityStateZip || ''
+  const phone   = options.phone        || ''
+
   doc
     .moveDown(2)
     .fontSize(11)
@@ -125,15 +134,13 @@ function signature(doc) {
     .text('Sincerely,')
     .moveDown(2)
     .text('_________________________')
-    .text('[Your Signature]')
     .moveDown(0.5)
-    .text('[Print Your Full Name]')
-    .moveDown(0.5)
-    .text('[Your Address]')
-    .moveDown(0.5)
-    .text('[City, State ZIP]')
-    .moveDown(0.5)
-    .text('[Phone Number]')
+    .text(name)
+
+  if (address) doc.moveDown(0.25).text(address)
+  if (cityZip) doc.moveDown(0.25).text(cityZip)
+  if (phone)   doc.moveDown(0.25).text(phone)
+
   legalDisclaimer(doc)
 }
 
@@ -171,7 +178,7 @@ function buildLetter(doc, options) {
         `Please delete or correct this item and provide me with a corrected copy of my credit report ` +
         `as required by FCRA § 611(a)(6)(B)(iii).`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 2: Dispute + method of verification request ───────────────────
@@ -188,7 +195,7 @@ function buildLetter(doc, options) {
         `contacted, and the telephone number if reasonably available.\n\n` +
         `Please provide this description within 15 days of completing the reinvestigation.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 3: Dispute inaccurate information ─────────────────────────────
@@ -205,7 +212,7 @@ function buildLetter(doc, options) {
         `Under FCRA § 611(a)(1)(A), please complete your reinvestigation within 30 days and notify ` +
         `me of the results.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 4: Remove outdated information (§605 expiry) ─────────────────
@@ -223,7 +230,7 @@ function buildLetter(doc, options) {
         `This item has exceeded the applicable reporting period and must be removed immediately. ` +
         `Please confirm removal in writing and provide a corrected credit report.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 5: Dispute unauthorized inquiry ────────────────────────────────
@@ -239,7 +246,7 @@ function buildLetter(doc, options) {
         `I did not apply for credit with this company and did not provide written authorization for ` +
         `this inquiry. Please remove this unauthorized inquiry immediately and confirm removal in writing.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 6: Direct furnisher dispute (§623) ─────────────────────────────
@@ -258,7 +265,7 @@ function buildLetter(doc, options) {
         `the information of the correction.\n\n` +
         `Please provide written confirmation of your investigation results and any corrections made.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 7: Furnisher re-investigation request ──────────────────────────
@@ -276,7 +283,7 @@ function buildLetter(doc, options) {
         `I am requesting that you conduct a thorough reinvestigation and correct or delete any ` +
         `inaccurate information.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 8: Cease reporting inaccurate information ─────────────────────
@@ -295,7 +302,7 @@ function buildLetter(doc, options) {
         `and correct your records. Failure to do so may violate FCRA § 623 and expose you to civil ` +
         `liability under FCRA § 616.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 9: Request furnisher investigation records ────────────────────
@@ -314,7 +321,7 @@ function buildLetter(doc, options) {
         `4. The results of the investigation and any corrections made\n\n` +
         `Please provide this information within 30 days.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 10: Furnisher escalation ──────────────────────────────────────
@@ -333,7 +340,7 @@ function buildLetter(doc, options) {
         `I demand immediate correction of the inaccurate information and written confirmation ` +
         `within 15 days. I reserve all rights under applicable federal and state law.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 11: Goodwill adjustment ────────────────────────────────────────
@@ -354,7 +361,7 @@ function buildLetter(doc, options) {
         `This would have a meaningful impact on my ability to [purchase a home / qualify for better rates / etc.].\n\n` +
         `I understand this is not required by law, and I sincerely appreciate your consideration.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 12: Pay-for-delete offer ───────────────────────────────────────
@@ -375,7 +382,7 @@ function buildLetter(doc, options) {
         `agree to delete the account from my credit file upon receipt of payment.\n\n` +
         `This offer expires 30 days from the date of this letter. Please respond in writing.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 13: Settlement offer ───────────────────────────────────────────
@@ -397,7 +404,7 @@ function buildLetter(doc, options) {
         `Please respond with your decision within 30 days. This offer is contingent upon ` +
         `written agreement prior to any payment.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     // ── Letter 14: FDCPA §1692g debt validation ───────────────────────────────
@@ -422,12 +429,12 @@ function buildLetter(doc, options) {
         `including any credit reporting. Failure to comply may result in a complaint to ` +
         `the CFPB and the FTC, and may expose your company to liability under FDCPA § 1692k.`
       )
-      signature(doc)
+      signature(doc, options)
       break
 
     default:
       body(doc, `Letter template ${letterNumber} not found.`)
-      signature(doc)
+      signature(doc, options)
   }
 }
 

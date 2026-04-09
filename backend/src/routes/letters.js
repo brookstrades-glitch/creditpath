@@ -35,13 +35,18 @@ const LETTER_NUMBERS = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
 const GenerateSchema = z.object({
   letterNumber: z.number().int().min(1).max(14),
   path:         z.enum(LETTER_PATHS),
-  // Merge fields — vary by letter type
-  bureau:       z.string().optional(),
-  creditor:     z.string().optional(),
-  accountNumber: z.string().optional(),
+  // Personal info — populates signature block
+  fullName:     z.string().optional(),
+  address:      z.string().optional(),
+  cityStateZip: z.string().optional(),
+  phone:        z.string().optional(),
+  // Dispute-specific merge fields
+  bureau:          z.string().optional(),
+  creditor:        z.string().optional(),
+  accountNumber:   z.string().optional(),
   itemDescription: z.string().optional(),
-  amount:       z.number().optional(),
-  bureauAddress: z.string().optional(),
+  amount:          z.number().optional(),
+  bureauAddress:   z.string().optional(),
   creditorAddress: z.string().optional(),
 })
 
@@ -61,6 +66,10 @@ router.post('/generate', async (req, res, next) => {
       letterNumber:    fields.letterNumber,
       path:            fields.path,
       user:            req.user,
+      fullName:        fields.fullName,
+      address:         fields.address,
+      cityStateZip:    fields.cityStateZip,
+      phone:           fields.phone,
       bureau:          fields.bureau,
       creditor:        fields.creditor,
       accountNumber:   fields.accountNumber,

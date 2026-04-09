@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 import Navbar from '../components/ui/Navbar'
 import { Card } from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -59,7 +60,12 @@ function LetterCard({ letter, onGenerate }) {
 
 // ─── Generate modal ───────────────────────────────────────────────────────────
 function GenerateModal({ letter, onClose }) {
+  const { user } = useAuth()
   const [fields, setFields] = useState({
+    // Personal info — pre-fill from account if available
+    fullName: user?.name || '',
+    address: '', cityStateZip: '', phone: '',
+    // Dispute-specific
     bureau: '', creditor: '', accountNumber: '',
     itemDescription: '', amount: '', bureauAddress: '', creditorAddress: '',
   })
@@ -76,6 +82,12 @@ function GenerateModal({ letter, onClose }) {
       const payload = {
         letterNumber:    letter.n,
         path:            letter.path,
+        // Personal info
+        ...(fields.fullName      && { fullName:      fields.fullName }),
+        ...(fields.address       && { address:       fields.address }),
+        ...(fields.cityStateZip  && { cityStateZip:  fields.cityStateZip }),
+        ...(fields.phone         && { phone:         fields.phone }),
+        // Dispute-specific
         ...(fields.bureau          && { bureau:          fields.bureau }),
         ...(fields.creditor        && { creditor:        fields.creditor }),
         ...(fields.accountNumber   && { accountNumber:   fields.accountNumber }),
@@ -111,6 +123,17 @@ function GenerateModal({ letter, onClose }) {
     <Modal isOpen title={`Letter ${letter.n} — ${letter.title}`} onClose={onClose} size="md">
       <div className="space-y-4">
         <p className="text-sm text-gray-500">{letter.desc}</p>
+
+        {/* Personal info — populates signature block in PDF */}
+        <div className="space-y-3 pb-4 border-b border-gray-100">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Your Information</p>
+          <Input label="Full Legal Name" required value={fields.fullName} onChange={set('fullName')} placeholder="As it should appear on the letter" />
+          <Input label="Street Address" value={fields.address} onChange={set('address')} placeholder="123 Main St" />
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="City, State ZIP" value={fields.cityStateZip} onChange={set('cityStateZip')} placeholder="Houston, TX 77001" />
+            <Input label="Phone Number" value={fields.phone} onChange={set('phone')} placeholder="(555) 000-0000" />
+          </div>
+        </div>
 
         {/* Path-specific fields */}
         {(letter.path === 'bureau') && (
